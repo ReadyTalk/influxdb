@@ -87,6 +87,11 @@ if [ -n "${UDP_PORT}" ]; then
     sed -i -r -e "/^\[\[udp\]\]/, /^$/ { s/4444/${UDP_PORT}/; }" ${CONFIG_FILE}
 fi
 
+# Enable Authentication
+if [ -n "${AUTH_ENABLED}" ] && [ -n "${ADMIN_USER}" ]; then
+    echo "ENABLING AUTHENTICATION"
+    /usr/bin/perl -p -i -e "s/^  auth-enabled.*$/  auth-enabled = true/g" ${CONFIG_FILE}
+fi
 
 echo "influxdb configuration: "
 cat ${CONFIG_FILE}
@@ -115,11 +120,19 @@ if [ -n "${PRE_CREATE_DB}" ]; then
         if [ -n "${ADMIN_USER}" ]; then
           echo "=> Creating admin user"
           /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -execute="CREATE USER ${ADMIN_USER} WITH PASSWORD '${PASS}' WITH ALL PRIVILEGES"
+          if [ -n "${WO_USER}" ] && [ -n "${WO_PASS}" ]; then
+              echo "=> Creating Write Only user"
+              /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="CREATE USER ${WO_USER} WITH PASSWORD '${WO_PASS}'"
+          fi
           for x in $arr
           do
               echo "=> Creating database: ${x}"
               /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="create database ${x}"
               /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="grant all PRIVILEGES on ${x} to ${ADMIN_USER}"
+              if [ -n "${WO_USER}" ] && [ -n "${WO_PASS}" ]; then
+                  echo "Granting Write Only on ${x} to ${WO_USER}"
+                  /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="grant WRITE on ${x} to ${WO_USER}"
+              fi
           done
           echo ""
         else

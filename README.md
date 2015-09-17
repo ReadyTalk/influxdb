@@ -42,6 +42,7 @@ Start your image binding the external ports `8083` and `8086` in all interfaces 
 Configuring your InfluxDB
 -------------------------
 Open your browser to access `localhost:8083` to configure InfluxDB. Fill the port which maps to `8086`. *There is no default user anymore in version 0.9 but you can set `auth-enabled: true` in the config.toml.*
+You can use -e AUTH_ENABLED=true to enable Authentication.   If you do so you MUST provide ADMIN_USER and INFLUXDB_INIT_PWD.
 
 Alternatively, you can use RESTful API to talk to InfluxDB on port `8086`. For example, if you have problems with the initial database creation for version `0.9.x`, you can use the new `influx` cli tool to configure the database. While the container is running, you launch the tool with the following command:
 
@@ -57,6 +58,8 @@ Initially create Database
 Use `-e PRE_CREATE_DB="db1;db2;db3"` to create database named "db1", "db2", and "db3" on the first time the container starts automatically. Each database name is separated by `;`. For example:
 
 ```docker run -d -p 8083:8083 -p 8086:8086 -e ADMIN_USER="root" -e INFLUXDB_INIT_PWD="somepassword" -e PRE_CREATE_DB="db1;db2;db3" tutum/influxdb:latest```
+
+To Create a Write Only User use `-e WO_USER="USERNAME" -e WO_PASS="wo_password"`, If you use WO_USER, you must also provide ADMIN_USER and INFLUXDB_INIT_PWD
 
 Alternatively, create a database and user with the InfluxDB 0.9 shell:
 
