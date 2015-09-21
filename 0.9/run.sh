@@ -124,6 +124,10 @@ if [ -n "${PRE_CREATE_DB}" ]; then
               echo "=> Creating Write Only user"
               /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="CREATE USER ${WO_USER} WITH PASSWORD '${WO_PASS}'"
           fi
+          if [ -n "${RO_USER}" ] && [ -n "${RO_PASS}" ]; then
+              echo "=> Creating Read Only user"
+              /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="CREATE USER ${RO_USER} WITH PASSWORD '${RO_PASS}'"
+          fi
           for x in $arr
           do
               echo "=> Creating database: ${x}"
@@ -132,6 +136,10 @@ if [ -n "${PRE_CREATE_DB}" ]; then
               if [ -n "${WO_USER}" ] && [ -n "${WO_PASS}" ]; then
                   echo "Granting Write Only on ${x} to ${WO_USER}"
                   /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="grant WRITE on ${x} to ${WO_USER}"
+              fi
+              if [ -n "${RO_USER}" ] && [ -n "${RO_PASS}" ]; then
+                  echo "Granting Read Only on ${x} to ${RO_USER}"
+                  /opt/influxdb/influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN_USER} -password="${PASS}" -execute="grant READ on ${x} to ${RO_USER}"
               fi
           done
           echo ""

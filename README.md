@@ -60,6 +60,7 @@ Use `-e PRE_CREATE_DB="db1;db2;db3"` to create database named "db1", "db2", and 
 ```docker run -d -p 8083:8083 -p 8086:8086 -e ADMIN_USER="root" -e INFLUXDB_INIT_PWD="somepassword" -e PRE_CREATE_DB="db1;db2;db3" tutum/influxdb:latest```
 
 To Create a Write Only User use `-e WO_USER="USERNAME" -e WO_PASS="wo_password"`, If you use WO_USER, you must also provide ADMIN_USER and INFLUXDB_INIT_PWD
+To Create a Read Only User use `-e RO_USER="USERNAME" -e RO_PASS="ro_password"`, If you use RO_USER, you must also provide ADMIN_USER and INFLUXDB_INIT_PWD
 
 Alternatively, create a database and user with the InfluxDB 0.9 shell:
 
